@@ -6,6 +6,7 @@ on:
     branches:
     - 'main'
     - '7.**'
+    - 'feature/tap-to-record'
 
 permissions:
   contents: read # to fetch code (actions/checkout)
@@ -13,7 +14,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -31,7 +32,13 @@ jobs:
       uses: gradle/actions/wrapper-validation@v5
 
     - name: Build with Gradle
-      run: ./gradlew qa
+      run: ./gradlew assemblePlayDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: signal-tap-to-record-debug
+        path: app/build/outputs/apk/play/debug/app-play-debug.apk
 
     - name: Archive reports for failed build
       if: ${{ failure() }}

@@ -589,12 +589,12 @@ public class InputPanel extends ConstraintLayout
   }
 
   @Override
-  public void onRecordReleased() {
+  public void onRecordReleased(boolean isLocked) {
     long elapsedTime = onRecordHideEvent();
 
     if (listener != null) {
       Log.d(TAG, "Elapsed time: " + elapsedTime);
-      if (elapsedTime > 1000) {
+      if (isLocked || elapsedTime > 1000) {
         listener.onRecorderFinished();
       } else {
         Toast.makeText(getContext(), R.string.InputPanel_tap_and_hold_to_record_a_voice_message_release_to_send, Toast.LENGTH_LONG).show();

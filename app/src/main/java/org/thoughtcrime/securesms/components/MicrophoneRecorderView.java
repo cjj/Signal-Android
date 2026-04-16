@@ -36,11 +36,13 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
   }
 
   public static final int ANIMATION_DURATION = 200;
+  private static final int QUICK_TAP_THRESHOLD = 500;
 
   private           FloatingRecordButton   floatingRecordButton;
   private           LockDropTarget        lockDropTarget;
   private @Nullable AudioRecordingHandler handler;
   private @NonNull  State                 state = State.NOT_RUNNING;
+  private           long                  lastDownTime;
 
   private final AudioManager audioManager;
 
@@ -105,7 +107,7 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
       state = State.NOT_RUNNING;
       hideUi();
 
-      if (handler != null) handler.onRecordReleased();
+      if (handler != null) handler.onRecordReleased(true);
     }
   }
 
@@ -128,6 +130,7 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
           if (handler != null) handler.onRecorderAlreadyInUse();
         } else if (state == State.NOT_RUNNING) {
           state = State.RUNNING_HELD;
+          lastDownTime = System.currentTimeMillis();
           floatingRecordButton.display(event.getX(), event.getY());
           lockDropTarget.display();
           if (handler != null) handler.onRecordPressed();
@@ -136,9 +139,13 @@ public final class MicrophoneRecorderView extends FrameLayout implements View.On
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_UP:
         if (this.state == State.RUNNING_HELD) {
-          state = State.NOT_RUNNING;
-          hideUi();
-          if (handler != null) handler.onRecordReleased();
+          if (System.currentTimeMillis() - lastDownTime < QUICK_TAP_THRESHOLD) {
+            lockAction();
+          } else {
+            state = State.NOT_RUNNING;
+            hideUi();
+            if (handler != null) handler.onRecordReleased(false);
+          }
         }
         break;
       case MotionEvent.ACTION_MOVE:

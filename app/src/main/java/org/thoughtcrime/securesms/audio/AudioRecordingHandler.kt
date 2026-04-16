@@ -2,7 +2,7 @@ package org.thoughtcrime.securesms.audio
 
 interface AudioRecordingHandler {
   fun onRecordPressed()
-  fun onRecordReleased()
+  fun onRecordReleased(isLocked: Boolean)
   fun onRecordCanceled(byUser: Boolean)
   fun onRecordLocked()
   fun onRecordSaved()

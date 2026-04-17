@@ -32,13 +32,15 @@ jobs:
       uses: gradle/actions/wrapper-validation@v5
 
     - name: Build with Gradle
-      run: ./gradlew :Signal-Android:assemblePlayProdDebug
+      run: ./gradlew :Signal-Android:assemblePlayProdDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" -Dorg.gradle.workers.max=2
 
     - name: Upload APK
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: signal-tap-to-record-debug
-        path: app/build/outputs/apk/playProd/debug/app-play-prod-debug.apk
+        path: |
+          **/build/outputs/apk/**/*.apk
 
     - name: Archive reports for failed build
       if: ${{ failure() }}
